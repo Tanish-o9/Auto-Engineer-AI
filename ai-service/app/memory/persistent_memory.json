@@ -1,0 +1,41 @@
+{
+  "short_term": [],
+  "long_term": [
+    {
+      "id": "MEM-001",
+      "category": "coding_style",
+      "content": "Strict TypeScript without implicit any, Python type hints on public methods, 0-warning Ruff lint policy.",
+      "importance": 0.95,
+      "created_at": "2026-07-21 12:00:00"
+    },
+    {
+      "id": "MEM-002",
+      "category": "preferred_frameworks",
+      "content": "Next.js 14 App Router for Frontend, Django DRF / FastAPI for Backend, PostgreSQL + pgvector for DB, Redis 7 for Cache.",
+      "importance": 0.98,
+      "created_at": "2026-07-21 12:00:00"
+    },
+    {
+      "id": "MEM-003",
+      "category": "architecture_decisions",
+      "content": "Feature-first domain module structure instead of layer directories. 10-Agent LangGraph orchestration with Supervisor Router.",
+      "importance": 0.99,
+      "created_at": "2026-07-21 12:00:00"
+    },
+    {
+      "id": "MEM-004",
+      "category": "project_requirements",
+      "content": "Autonomous execution with stage checkpoints, production SQL DDL scripts, Schemathesis API tests & Playwright E2E suites.",
+      "importance": 0.9,
+      "created_at": "2026-07-21 12:00:00"
+    },
+    {
+      "id": "MEM-005",
+      "category": "coding_style",
+      "content": "Use strict TypeScript and 0 implicit any",
+      "importance": 0.8,
+      "created_at": "2026-07-21 17:08:05"
+    }
+  ],
+  "last_updated": "2026-07-21 17:08:05"
+}

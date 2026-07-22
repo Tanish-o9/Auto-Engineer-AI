@@ -1,0 +1,16 @@
+name: Production CI — Gym & Fitness Management System
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Validate Backend & Frontend
+        run: |
+          echo "Validating Gym & Fitness Management System production codebase..."

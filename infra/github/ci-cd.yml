@@ -1,0 +1,39 @@
+name: AutoEngineer AI CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies & Test Backend
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          python manage.py test
+
+      - name: Test AI Service & LangGraph Workflow
+        run: |
+          cd ai-service
+          pip install -r requirements.txt
+          pytest
+
+      - name: Setup Node.js & Typecheck Frontend
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - run: |
+          cd frontend
+          npm ci
+          npm run lint

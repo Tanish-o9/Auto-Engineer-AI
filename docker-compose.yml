@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: autoengineer_postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-autoengineer}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-autoengineer}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - autoengineer_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: autoengineer_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - autoengineer_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: autoengineer_backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-autoengineer}
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-dev-key}
+      - DEBUG=1
+      - AI_SERVICE_URL=http://ai-service:8001
+      - AI_SERVICE_SECRET=${SERVICE_SECRET:-dev-service-secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - autoengineer_net
+
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: autoengineer_ai_service
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+    volumes:
+      - ./ai-service:/app
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-autoengineer}
+      - REDIS_URL=redis://redis:6379/0
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - BACKEND_URL=http://backend:8000
+      - SERVICE_SECRET=${SERVICE_SECRET:-dev-service-secret}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - autoengineer_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: autoengineer_frontend
+    command: npm run dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_AI_SERVICE_URL=http://localhost:8001
+    depends_on:
+      - backend
+      - ai-service
+    networks:
+      - autoengineer_net
+
+networks:
+  autoengineer_net:
+    driver: bridge
+
+volumes:
+  postgres_data:

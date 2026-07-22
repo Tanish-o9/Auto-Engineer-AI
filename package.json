@@ -1,0 +1,25 @@
+{
+  "name": "autoengineer-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Autonomous software architecture & engineering platform powered by an 8-agent AI team",
+  "scripts": {
+    "dev:frontend": "npm run dev --prefix frontend",
+    "dev:backend": "cd backend && python manage.py runserver 0.0.0.0:8000",
+    "dev:ai": "cd ai-service && uvicorn app.main:app --reload --port 8001",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "test:all": "npm run test --prefix frontend && pytest backend ai-service"
+  },
+  "keywords": [
+    "multi-agent",
+    "langgraph",
+    "software-architecture",
+    "auto-engineer",
+    "nextjs",
+    "django",
+    "fastapi"
+  ],
+  "author": "AutoEngineer AI Team",
+  "license": "MIT"
+}
